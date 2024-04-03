@@ -7,17 +7,56 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import Card from '@/components/Card';
 import Home from '..';
+import { use, useEffect, useState } from 'react';
+import CarSelectionCard from '@/components/CarSelectionCard';
 
-export default function CarData(data: Car) {
+export default function CarData({ data }: { data: Car }) {
   const router = useRouter();
+  const [simulatedValues, setSimulatedValues] = useState({
+    installment6x: 0,
+    installment12x: 0,
+    installment48x: 0,
+  });
+
+  const handleSimulateValue = (initialPayment: number = 0) => {
+    if (!data) return;
+    if (initialPayment >= data.price) {
+      alert('O valor da entrada não pode ser maior ou igual ao valor do carro');
+      return;
+    }
+    const value = data.price - initialPayment;
+    const installment6x = (value / 6) * 1.1247;
+    const installment12x = (value / 12) * 1.1556;
+    const installment48x = (value / 48) * 1.1869;
+
+    setSimulatedValues({ installment6x, installment12x, installment48x });
+  };
+
+  useEffect(() => {
+    handleSimulateValue();
+  }, [data]);
 
   if (router.isFallback) {
-    return <div>Carregando...</div>;
+    return (
+      <div className="flex justify-center items-center">
+        <span className="flex px-8 p-4 bg-primary text-white rounded-lg">
+          <svg className="animate-spin -ml-1 mr-2 h-5 w-5 " xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          Carregando...
+        </span>
+      </div>
+    );
   }
 
   return (
     <>
-      <Home />
+      <CarSelectionCard cb={handleSimulateValue} />
       <div className="mt-20 grid grid-cols-1 gap-y-7 sm:grid-cols-3 sm:gap-x-7">
         <div className="bg-white rounded-b-lg shadow col-span-1">
           <div className="relative w-full">
@@ -57,20 +96,22 @@ export default function CarData(data: Car) {
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4 mt-10 max-w-[500px]">
-            <PriceCard title="6x" price="R$ 9.917" tag="IPVA GRÁTIS" accent />
-            <PriceCard title="12x" price="R$ 4.958" />
-            <PriceCard title="48x" price="R$ 1.240" />
+            <PriceCard title="6x" price={formatMoney(simulatedValues.installment6x)} tag="IPVA GRÁTIS" accent />
+            <PriceCard title="12x" price={formatMoney(simulatedValues.installment12x)} />
+            <PriceCard title="48x" price={formatMoney(simulatedValues.installment48x)} />
           </div>
           <div className="flex flex-wrap items-center gap-4 mt-5">
             <Link
               href="#"
-              className="flex items-center gap-x-2 justify-center whitespace-nowrap bg-whatsapp border border-whatsapp text-white rounded-full px-14 py-2.5 h-full tracking-wider font-extrabold"
+              className="flex items-center gap-x-2 justify-center whitespace-nowrap bg-whatsapp border border-whatsapp text-white rounded-full px-14 py-2.5 h-full tracking-wider font-extrabold transition hover:opacity-90"
             >
               <Image src="/whatsapp.svg" alt="WhatsApp Icone" height={24} width={24} />
               Falar com consultor
             </Link>
 
-            <p className="w-full text-center font-bold sm:w-auto">{data.phone}</p>
+            <Link href="#" className="w-full text-center font-bold sm:w-auto hover:underline">
+              {data.phone}
+            </Link>
           </div>
         </Card>
       </div>
@@ -89,12 +130,12 @@ export async function getStaticProps({ params }: GetStaticPropsContext) {
   const { id } = params || {};
 
   try {
-    const response = await axios.get(`${process.env.API_URL}/cars/${id}`);
-    const carDetails = response.data;
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URl}/cars/${id}`);
+    const data = response.data;
 
     return {
       props: {
-        carDetails,
+        data,
       },
       revalidate: 60,
     };

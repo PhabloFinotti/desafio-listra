@@ -6,5 +6,5 @@ interface Props {
   children: ReactNode;
 }
 export default function ListItem({ href, children }: Props) {
-  return <li>{href ? <Link href={href}>{children}</Link> : children}</li>;
+  return <li className="hover:opacity-80">{href ? <Link href={href}>{children}</Link> : children}</li>;
 }

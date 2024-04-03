@@ -1,22 +1,20 @@
 import Card from '@/components/Card';
 import axios from 'axios';
-import { Router, useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { FormEvent, useEffect, useState } from 'react';
 
-export default function CarSelectionCard() {
+export default function CarSelectionCard({ cb }: { cb?: (initialPayment: number) => void }) {
   const router = useRouter();
-  const [hasSelectedCar, setHasSelectedCar] = useState(false);
   const [cars, setCars] = useState<Car[]>([]);
-  const [initialPayment, setInitialPayment] = useState<number>(0);
-  const [selectedCar, setSelectedCar] = useState<Car | null>(null);
+  const [initialPayment, setInitialPayment] = useState<string>('');
+  const [selectedCar, setSelectedCar] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchCars() {
       try {
-        const response = await axios.get(`${process.env.API_URL}/cars`);
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URl}/cars`);
         setCars(response.data);
-        setHasSelectedCar(router.query.id !== undefined);
-        setSelectedCar(response.data.find((car: Car) => car.id === Number(router.query.id)));
+        setSelectedCar(response.data.find((car: { id: number }) => car.id === Number(router.query.id)).id);
       } catch (error) {
         console.error('Erro ao buscar lista de carros:', error);
       }
@@ -28,12 +26,18 @@ export default function CarSelectionCard() {
   const handleSelectChange = (id: number) => {
     if (!id) return;
 
-    setHasSelectedCar(true);
     router.push(`/car/${id}`);
   };
 
-  const handleSimulateValue = () => {
-    alert('Simulação realizada com sucesso!');
+  // Necessário para poder deixar o campo vazio, sem o 0 irritante que nao deixa o usuário apagar
+  const handleInitialPaymentInput = (e: FormEvent<HTMLInputElement>) => {
+    const value = (e.target as HTMLInputElement).value.replace(/\D/g, '');
+    if (value === '') {
+      setInitialPayment('');
+      return;
+    }
+
+    setInitialPayment(value);
   };
 
   return (
@@ -48,12 +52,12 @@ export default function CarSelectionCard() {
           <label htmlFor="select-car" className="text-lg font-bold">
             Selecione o veículo que deseja simular o financiamento
           </label>
-          <div className="flex flex-col items-center gap-4 mt-4 sm:flex-row">
+          <div className="flex flex-col items-end gap-4 mt-4 sm:flex-row">
             <select
               id="select-car"
               name="select-car"
-              className="w-full h-[3rem] max-w-80 border border-gray-300 rounded-lg p-2"
-              defaultValue={selectedCar?.id || ''}
+              className="w-full h-[3rem] max-w-80 border border-gray-300 rounded-lg px-4 py-2"
+              value={selectedCar || ''}
               onChange={(e) => handleSelectChange(Number(e.target.value))}
             >
               <option value="" disabled hidden>
@@ -66,21 +70,30 @@ export default function CarSelectionCard() {
               ))}
             </select>
 
-            {hasSelectedCar && (
+            {cb && (
               <>
-                <label htmlFor="initial-payment">Valor da Entrada</label>
-                <input
-                  type="number"
-                  className="w-full h-[3rem] max-w-80 border border-gray-300 rounded-lg p-2"
-                  placeholder="Insira o valor da entrada"
-                  onInput={(e: React.ChangeEvent<HTMLInputElement>) => setInitialPayment(Number(e.target.value))}
-                  value={initialPayment}
-                  id="initial-payment"
-                />
+                <div>
+                  <label className="font-bold text-sm" htmlFor="initial-payment">
+                    Valor da Entrada
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full h-[3rem] max-w-80 border border-gray-300 rounded-lg px-4 py-2"
+                    placeholder="Insira o valor da entrada"
+                    onInput={(e) => handleInitialPaymentInput(e)}
+                    value={initialPayment}
+                    id="initial-payment"
+                  />
+                </div>
                 <button
-                  disabled={hasSelectedCar}
-                  className={'bg-primary border border-primary text-white rounded-full px-24 sm:px-28 py-2.5 h-full tracking-wider font-extrabold'}
-                  onClick={() => handleSimulateValue()}
+                  className={
+                    'bg-primary border border-primary text-white rounded-full px-24 sm:px-28 py-2.5 h-full tracking-wider font-extrabold cursor-pointer transition hover:opacity-90'
+                  }
+                  type="button"
+                  onClick={() => {
+                    console.log('clicado');
+                    cb(Number(initialPayment));
+                  }}
                 >
                   Simular
                 </button>
