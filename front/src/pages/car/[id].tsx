@@ -6,8 +6,7 @@ import { GetStaticPropsContext } from 'next';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import Card from '@/components/Card';
-import Home from '..';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import CarSelectionCard from '@/components/CarSelectionCard';
 
 export default function CarData({ data }: { data: Car }) {
@@ -24,10 +23,9 @@ export default function CarData({ data }: { data: Car }) {
       alert('O valor da entrada não pode ser maior ou igual ao valor do carro');
       return;
     }
-    const value = data.price - initialPayment;
-    const installment6x = (value / 6) * 1.1247;
-    const installment12x = (value / 12) * 1.1556;
-    const installment48x = (value / 48) * 1.1869;
+    const installment6x = (data.price * 1.1247 - initialPayment) / 6;
+    const installment12x = (data.price * 1.1556 - initialPayment) / 12;
+    const installment48x = (data.price * 1.1869 - initialPayment) / 48;
 
     setSimulatedValues({ installment6x, installment12x, installment48x });
   };
