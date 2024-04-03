@@ -1,8 +1,12 @@
 <?php
 
 use App\Http\Controllers\CarController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/cars', [CarController::class, 'index']);
-Route::get('/cars/{car}', [CarController::class, 'show']);
+Route::prefix('cars/')
+        ->controller(CarController::class)
+        ->name('car.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/{car}', 'show')->name('show');
+        });
