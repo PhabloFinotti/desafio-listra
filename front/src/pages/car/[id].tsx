@@ -1,13 +1,14 @@
-import PriceCard from '@/components/PriceCard';
-import { formatMileage, formatMoney } from '@/utils/stringUtils';
+import React, { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { GetStaticPropsContext } from 'next';
-import { useRouter } from 'next/router';
 import axios from 'axios';
-import Card from '@/components/Card';
-import { useEffect, useState } from 'react';
+import { formatMileage, formatMoney } from '@/utils/stringUtils';
+import { useRouter } from 'next/router';
 import CarSelectionCard from '@/components/CarSelectionCard';
+import PriceCard from '@/components/PriceCard';
+import Card from '@/components/Card';
+import Loading from '@/components/Loading';
+import { GetStaticPropsContext } from 'next';
 
 export default function CarData({ data }: { data: Car }) {
   const router = useRouter();
@@ -17,44 +18,32 @@ export default function CarData({ data }: { data: Car }) {
     installment48x: 0,
   });
 
-  const handleSimulateValue = (initialPayment: number = 0) => {
-    if (!data) return;
-    if (initialPayment >= data.price) {
-      alert('O valor da entrada não pode ser maior ou igual ao valor do carro');
-      return;
-    }
-    const installment6x = (data.price * 1.1247 - initialPayment) / 6;
-    const installment12x = (data.price * 1.1556 - initialPayment) / 12;
-    const installment48x = (data.price * 1.1869 - initialPayment) / 48;
-
-    setSimulatedValues({ installment6x, installment12x, installment48x });
-  };
+  const simulateValues = useCallback(
+    (initialPayment: number = 0) => {
+      if (!data) return;
+      if (initialPayment >= data.price) {
+        alert('O valor da entrada não pode ser maior ou igual ao valor do carro');
+        return;
+      }
+      const installment6x = (data.price * 1.1247 - initialPayment) / 6;
+      const installment12x = (data.price * 1.1556 - initialPayment) / 12;
+      const installment48x = (data.price * 1.1869 - initialPayment) / 48;
+      setSimulatedValues({ installment6x, installment12x, installment48x });
+    },
+    [data]
+  );
 
   useEffect(() => {
-    handleSimulateValue();
-  }, [data]);
+    simulateValues();
+  }, [data, simulateValues]);
 
   if (router.isFallback) {
-    return (
-      <div className="flex justify-center items-center">
-        <span className="flex px-8 p-4 bg-primary text-white rounded-lg">
-          <svg className="animate-spin -ml-1 mr-2 h-5 w-5 " xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          Carregando...
-        </span>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
     <>
-      <CarSelectionCard cb={handleSimulateValue} />
+      <CarSelectionCard handleSimulateValue={simulateValues} />
       <div className="mt-20 grid grid-cols-1 gap-y-7 sm:grid-cols-3 sm:gap-x-7">
         <div className="bg-white rounded-b-lg shadow col-span-1">
           <div className="relative w-full">

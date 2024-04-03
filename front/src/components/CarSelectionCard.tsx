@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { FormEvent, useEffect, useState } from 'react';
 
-export default function CarSelectionCard({ cb }: { cb?: (initialPayment: number) => void }) {
+export default function CarSelectionCard({ handleSimulateValue }: { handleSimulateValue?: (initialPayment: number) => void }) {
   const router = useRouter();
   const [cars, setCars] = useState<Car[]>([]);
   const [initialPayment, setInitialPayment] = useState<string>('');
@@ -70,7 +70,7 @@ export default function CarSelectionCard({ cb }: { cb?: (initialPayment: number)
               ))}
             </select>
 
-            {cb && (
+            {handleSimulateValue && (
               <>
                 <div>
                   <label className="font-bold text-sm" htmlFor="initial-payment">
@@ -92,7 +92,7 @@ export default function CarSelectionCard({ cb }: { cb?: (initialPayment: number)
                   type="button"
                   onClick={() => {
                     console.log('clicado');
-                    cb(Number(initialPayment));
+                    handleSimulateValue(Number(initialPayment));
                   }}
                 >
                   Simular
