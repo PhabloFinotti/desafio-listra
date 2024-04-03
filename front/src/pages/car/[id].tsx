@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import axios from 'axios';
-import { formatMileage, formatMoney } from '@/utils/stringUtils';
+import { formatMileage, formatMoney } from '@/utils/utils';
 import { useRouter } from 'next/router';
 import CarSelectionCard from '@/components/CarSelectionCard';
 import PriceCard from '@/components/PriceCard';
@@ -54,10 +54,10 @@ export default function CarData({ data }: { data: Car }) {
             </span>
           </div>
           <div className="p-4">
-            <p className="text-xl font-bold">
+            <h3 className="text-xl font-bold">
               {data.brand} {data.model}
-            </p>
-            <span className="mt-2">{data.description}</span>
+            </h3>
+            <p className="mt-2">{data.description}</p>
             <div className="flex flex-wrap items-center justify-between gap-2 mt-2">
               <span className="flex whitespace-nowrap items-center gap-x-1 text-heading/70">
                 <Image src="/calendar.svg" alt="Ano do veículo" height={16} width={16} />

@@ -14,7 +14,9 @@ export default function CarSelectionCard({ handleSimulateValue }: { handleSimula
       try {
         const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URl}/cars`);
         setCars(response.data);
-        setSelectedCar(response.data.find((car: { id: number }) => car.id === Number(router.query.id)).id);
+        if (router.query.id) {
+          setSelectedCar(response.data.find((car: { id: number }) => car.id === Number(router.query.id)).id);
+        }
       } catch (error) {
         console.error('Erro ao buscar lista de carros:', error);
       }

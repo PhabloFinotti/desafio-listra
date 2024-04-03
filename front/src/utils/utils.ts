@@ -4,7 +4,7 @@ export function formatMoney(value: number, lang = 'pt-BR', currency = 'BRL') {
       currency,
   });
 
-  return formatter.format(value);
+  return formatter.format(value / 100);
 }
 
 export function formatMileage(value: number, lang = 'pt-BR') {
