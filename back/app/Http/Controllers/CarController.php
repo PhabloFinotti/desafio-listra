@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Car;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class CarController extends Controller
 {
@@ -13,7 +13,9 @@ class CarController extends Controller
      */
     public function index(): JsonResponse
     {
-        return response()->json(Car::all(['id', 'brand', 'model']));
+        return Cache::remember('cars', 60, function () {
+            return response()->json(Car::all(['id', 'brand', 'model']));
+        });
     }
 
     /**
@@ -21,6 +23,6 @@ class CarController extends Controller
      */
     public function show(Car $car)
     {
-        return response()->json($car);
+        return Cache::remember('car-'.$car->id, 60, fn () => response()->json($car));
     }
 }

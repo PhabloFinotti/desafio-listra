@@ -25,7 +25,7 @@ class CarFactory extends Factory
             'year' => $this->faker->year(),
             'mileage' => $this->faker->numberBetween(0, 100000),
             'transmission' => $this->faker->randomElement(['Manual', 'Automático']),
-            'price' => $this->faker->numberBetween(0, 100000),
+            'price' => $this->faker->numberBetween(500000, 5000000),
             'phone' => $this->faker->phoneNumber(),
         ];
     }
