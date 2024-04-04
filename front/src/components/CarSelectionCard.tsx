@@ -23,7 +23,7 @@ export default function CarSelectionCard({ handleSimulateValue }: { handleSimula
     }
 
     fetchCars();
-  }, []);
+  }, [router.query.id]);
 
   const handleSelectChange = (id: number) => {
     if (!id) return;

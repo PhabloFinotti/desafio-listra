@@ -52,4 +52,10 @@ describe('Car component', () => {
   test('renders car brand and model', () => {
     expect(screen.getByText(mockData.brand + ' ' + mockData.model)).toBeInTheDocument();
   });
+
+  test('renders default installment', () => {
+    expect(screen.getByText('R$ 11.153,28')).toBeInTheDocument();
+    expect(screen.getByText('R$ 5.729,85')).toBeInTheDocument();
+    expect(screen.getByText('R$ 1.471,26')).toBeInTheDocument();
+  });
 });
